@@ -7,7 +7,7 @@ public record ArticlePreviewDTO(
     String title,
     String abstractionContent,
     String mainImageUrl,
-    LocalDateTime createAt,
+    LocalDateTime createdAt,
     boolean isPremium
 ) {
     

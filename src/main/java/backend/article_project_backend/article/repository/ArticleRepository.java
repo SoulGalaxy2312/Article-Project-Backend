@@ -11,4 +11,6 @@ import backend.article_project_backend.article.model.Article;
 public interface ArticleRepository extends JpaRepository<Article, Integer> {
 
     Page<Article> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    Page<Article> findAllByOrderByViewsDesc(Pageable pageable);
 }

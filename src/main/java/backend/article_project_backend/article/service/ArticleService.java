@@ -19,19 +19,27 @@ public class ArticleService {
     
     private final ArticleRepository articleRepository;
 
-    private final int HOME_PAGE_NUM_ARTICLE = 25;
+    private final int HOME_PAGE_NUM_ARTICLES = 25;
+    private final int HOME_PAGE_NUM_MOST_VIEWS_ARTICLES = 10;
 
     public ArticleService(ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
     }
 
     public List<ArticlePreviewDTO> getArticlesPreviewByPage(int pageNumber) {
-        Pageable pageable = PageRequest.of(
-            pageNumber, 
-            HOME_PAGE_NUM_ARTICLE,
-            Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(pageNumber, HOME_PAGE_NUM_ARTICLES);
         
         Page<Article> articles = articleRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+        return articles.stream()
+                        .map(ArticleMapper::toDTO)
+                        .collect(Collectors.toList());
+    }
+
+    public List<ArticlePreviewDTO> getTenArticlesWithMostViews() {
+        Pageable pageable = PageRequest.ofSize(HOME_PAGE_NUM_MOST_VIEWS_ARTICLES);
+
+        Page<Article> articles = articleRepository.findAllByOrderByViewsDesc(pageable);
 
         return articles.stream()
                         .map(ArticleMapper::toDTO)

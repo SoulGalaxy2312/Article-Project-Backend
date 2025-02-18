@@ -18,10 +18,15 @@ public class ArticleController {
         this.articleService = articleService;
     }
 
-    @GetMapping(AppPaths.API_BASE_PATH + "getHompageArticlePreviews")
+    @GetMapping(AppPaths.HOMEPAGE_URI + "/lastestArticles")
     public List<ArticlePreviewDTO> getMethodName(@RequestParam int pageNumber) {
 
         return articleService.getArticlesPreviewByPage(pageNumber);
+    }
+    
+    @GetMapping(AppPaths.HOMEPAGE_URI + "/tenMostViewedArticles")
+    public List<ArticlePreviewDTO> getMethodName() {
+        return articleService.getTenArticlesWithMostViews();
     }
     
 }
