@@ -14,6 +14,7 @@ public class ArticleMapper {
             article.getAbstractContent(), 
             article.getMainImageUrl(), 
             article.getCreatedAt(), 
-            article.isPremium());
+            article.isPremium(),
+            article.getAuthor().getFullName());
     }
 }
