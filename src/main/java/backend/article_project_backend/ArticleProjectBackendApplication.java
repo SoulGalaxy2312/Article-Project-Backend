@@ -1,5 +1,6 @@
 package backend.article_project_backend;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class ArticleProjectBackendApplication implements CommandLineRunner {
 
 		Dotenv dotenv = Dotenv.load();
         dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
-		
+
 		SpringApplication.run(ArticleProjectBackendApplication.class, args);
 	}
 
@@ -27,22 +28,25 @@ public class ArticleProjectBackendApplication implements CommandLineRunner {
 
 	@Override
     public void run(String... args) throws Exception {
-        // Creating an instance using Lombok's @Builder
-        Article article = Article.builder()
-                .authorId("author123")
-                .title("Introduction to Spring Boot")
-                .mainCategory("Technology")
-                .subCategory("Programming")
-                .mainImageUrl("https://example.com/image.jpg")
-                .tags(Set.of("Java", "Spring Boot", "Backend"))
-                .abstractContent("This article introduces Spring Boot.")
-                .isPremium(false)
-                .status("PUBLISHED")
-                .build();
+        // Loop to create and save 50 instances of Article
+        for (int i = 1; i <= 50; i++) {
+            Article article = new Article();
+            article.setAuthorId("author" + i);  // Unique authorId
+            article.setTitle("Spring Boot Article " + i);  // Unique title
+            article.setTopic("Technology");
+            article.setMainImageUrl("https://example.com/image" + i + ".jpg");  // Unique image URL
+            article.setTags(Set.of("Java", "Spring Boot", "Backend"));
+            article.setAbstractContent("This is a summary of article " + i);
+            article.setPremium(i % 2 == 0);
+            article.setStatus(i % 2 == 0 ? "PUBLISHED" : "DRAFT");  // Alternate status
+            article.setViews(10 + i);  // Unique view count (starting from 11)
+            article.setCreatedAt(LocalDateTime.now().minusDays(i));  // Set createdAt to a past date
 
-        // Saving to the database
-        articleRepository.save(article);
+            // Save to the database
+            articleRepository.save(article);
 
-        System.out.println("Article saved with ID: " + article.getId());
+            // Print the saved article ID for reference
+            System.out.println("Article " + i + " saved with ID: " + article.getId());
+        }
     }
 }

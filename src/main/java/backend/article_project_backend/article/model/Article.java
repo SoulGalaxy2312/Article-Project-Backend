@@ -1,5 +1,6 @@
 package backend.article_project_backend.article.model;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
@@ -24,8 +25,7 @@ public class Article {
 
     private String authorId;
     private String title;
-    private String mainCategory;
-    private String subCategory;
+    private String topic;
     private String mainImageUrl;
 
     private Set<String> tags;
@@ -33,4 +33,7 @@ public class Article {
     private String abstractContent;
     private boolean isPremium;
     private String status;
+    private int views;
+
+    private LocalDateTime createdAt;
 }
