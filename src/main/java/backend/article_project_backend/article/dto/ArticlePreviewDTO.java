@@ -1,9 +1,10 @@
 package backend.article_project_backend.article.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record ArticlePreviewDTO(
-    Integer id,
+    UUID id,
     String title,
     String abstractionContent,
     String mainImageUrl,

@@ -2,7 +2,7 @@ package backend.article_project_backend;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -48,23 +48,28 @@ public void run(String... args) throws Exception {
         System.out.println("Author " + i + " saved with ID: " + author.getId());
     }
 
-    // Then, create and save 50 articles, linking each to an author
+    List<String> tagNames = List.of("Java", "Spring Boot", "Backend");
+
+    System.out.println("Tags saved");
+    
     for (int i = 1; i <= 50; i++) {
         Article article = new Article();
         
-        // Assign the author to each article
-        Author author = authorRepository.findById(i).orElseThrow(() -> new Exception("Author not found"));
+        // Assign an author to each article
+        Author author = authorRepository.findById(i)
+                .orElseThrow(() -> new RuntimeException("Author not found with ID: "));
+                
         article.setAuthor(author);
 
-        article.setTitle("Spring Boot Article " + i);  // Unique title
+        article.setTitle("Spring Boot Article " + i);
         article.setTopic("Technology");
-        article.setMainImageUrl("https://example.com/image" + i + ".jpg");  // Unique image URL
-        article.setTags(Set.of("Java", "Spring Boot", "Backend"));
+        article.setMainImageUrl("https://example.com/image" + i + ".jpg");
+        article.setTags(tagNames); // Assigning preloaded tags
         article.setAbstractContent("This is a summary of article " + i);
         article.setPremium(i % 2 == 0);
-        article.setStatus(i % 2 == 0 ? "PUBLISHED" : "DRAFT");  // Alternate status
-        article.setViews(10 + i);  // Unique view count (starting from 11)
-        article.setCreatedAt(LocalDateTime.now().minusDays(i));  // Set createdAt to a past date
+        article.setStatus(i % 2 == 0 ? "PUBLISHED" : "DRAFT");
+        article.setViews(10 + i);
+        article.setCreatedAt(LocalDateTime.now().minusDays(i));
 
         // Save to the database
         articleRepository.save(article);

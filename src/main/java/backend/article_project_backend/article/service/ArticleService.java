@@ -1,18 +1,23 @@
 package backend.article_project_backend.article.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
+import backend.article_project_backend.article.dto.FullArticleDTO;
 import backend.article_project_backend.article.mapper.ArticleMapper;
 import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.repository.ArticleRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ArticleService {
@@ -32,7 +37,7 @@ public class ArticleService {
         Page<Article> articles = articleRepository.findAllByOrderByCreatedAtDesc(pageable);
 
         return articles.stream()
-                        .map(ArticleMapper::toDTO)
+                        .map(ArticleMapper::toArticlePreviewDTO)
                         .collect(Collectors.toList());
     }
 
@@ -42,7 +47,16 @@ public class ArticleService {
         Page<Article> articles = articleRepository.findAllByOrderByViewsDesc(pageable);
 
         return articles.stream()
-                        .map(ArticleMapper::toDTO)
+                        .map(ArticleMapper::toArticlePreviewDTO)
                         .collect(Collectors.toList());
+    }
+
+    public FullArticleDTO getSpecificArticle(String id) {
+        UUID uuid = UUID.fromString(id);
+
+        return articleRepository
+                    .findById(uuid)
+                    .map(ArticleMapper::toFullArticleDTO)
+                    .orElseThrow(() -> new EntityNotFoundException("Article not found with id: " + id));
     }
 }

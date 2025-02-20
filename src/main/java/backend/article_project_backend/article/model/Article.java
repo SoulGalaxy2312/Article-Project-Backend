@@ -1,9 +1,12 @@
 package backend.article_project_backend.article.model;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import backend.article_project_backend.author.model.Author;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,8 +26,8 @@ import lombok.NoArgsConstructor;
 public class Article {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
@@ -33,8 +36,9 @@ public class Article {
     private String title;
     private String topic;
     private String mainImageUrl;
-
-    private Set<String> tags;
+    
+    @ElementCollection
+    private List<String> tags = new ArrayList<>();
 
     private String abstractContent;
     private boolean isPremium;
