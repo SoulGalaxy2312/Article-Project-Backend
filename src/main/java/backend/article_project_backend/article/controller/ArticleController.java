@@ -16,11 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException.BadRequest;
-import org.springframework.web.client.RestClient.ResponseSpec;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class ArticleController {
@@ -30,7 +27,7 @@ public class ArticleController {
         this.articleService = articleService;
     }
 
-    @GetMapping(AppPaths.HOMEPAGE_URI + "/lastestArticles")
+    @GetMapping(AppPaths.HOMEPAGE_URI + "/latestArticles")
     public List<ArticlePreviewDTO> getMethodName(@RequestParam int pageNumber) {
 
         return articleService.getArticlesPreviewByPage(pageNumber);

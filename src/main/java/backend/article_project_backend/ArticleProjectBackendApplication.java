@@ -11,8 +11,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.repository.ArticleRepository;
-import backend.article_project_backend.author.model.Author;
-import backend.article_project_backend.author.repository.AuthorRepository;
+import backend.article_project_backend.user.model.User;
+import backend.article_project_backend.user.repository.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
@@ -30,14 +30,14 @@ public class ArticleProjectBackendApplication implements CommandLineRunner {
     private ArticleRepository articleRepository;
 
     @Autowired
-    private AuthorRepository authorRepository;
+    private UserRepository authorRepository;
 
 	@Override
 public void run(String... args) throws Exception {
     // First, create and save 50 authors
     for (int i = 1; i <= 50; i++) {
-        Author author = new Author();
-        author.setFullName("Author " + i);  // Unique author full name
+        User author = new User();
+        author.setUsername("Author " + i);  // Unique author full name
         author.setBirthDate(LocalDate.of(1980 + (i % 40), 1 + (i % 12), 1));  // Unique birth date
         author.setSubscriber(i % 2 == 0);  // Alternate subscription status
 
@@ -56,10 +56,10 @@ public void run(String... args) throws Exception {
         Article article = new Article();
         
         // Assign an author to each article
-        Author author = authorRepository.findById(i)
+        User author = authorRepository.findById(i)
                 .orElseThrow(() -> new RuntimeException("Author not found with ID: "));
                 
-        article.setAuthor(author);
+        article.setUser(author);
 
         article.setTitle("Spring Boot Article " + i);
         article.setTopic("Technology");

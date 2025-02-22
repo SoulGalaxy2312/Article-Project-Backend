@@ -16,13 +16,13 @@ public class ArticleMapper {
             article.getMainImageUrl(), 
             article.getCreatedAt(), 
             article.isPremium(),
-            article.getAuthor().getFullName());
+            article.getUser().getUsername());
     }
 
     public static FullArticleDTO toFullArticleDTO(Article article) {
         return new FullArticleDTO(
             article.getId().toString(), 
-            article.getAuthor().getFullName(), 
+            article.getUser().getUsername(), 
             article.getTitle(), 
             article.getTopic(), 
             article.getMainImageUrl(), 
