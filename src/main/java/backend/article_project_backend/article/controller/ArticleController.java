@@ -2,14 +2,11 @@ package backend.article_project_backend.article.controller;
 
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
-import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.service.ArticleService;
 import backend.article_project_backend.utils.common.path.AppPaths;
 import jakarta.persistence.EntityNotFoundException;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;

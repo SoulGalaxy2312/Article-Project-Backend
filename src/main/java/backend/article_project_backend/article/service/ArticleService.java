@@ -1,16 +1,13 @@
 package backend.article_project_backend.article.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import backend.article_project_backend.article.model.Article;
-import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

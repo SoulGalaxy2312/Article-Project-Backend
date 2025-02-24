@@ -2,9 +2,7 @@ package backend.article_project_backend.utils.security.jwt;
 
 import java.io.IOException;
 
-import org.apache.catalina.core.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;

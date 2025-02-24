@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import backend.article_project_backend.utils.security.authentication.CustomUserDetailsService;
 import backend.article_project_backend.utils.security.jwt.JwtFilter;
+import backend.article_project_backend.utils.common.path.AppPaths;
 
 @Configuration
 @EnableWebSecurity
@@ -35,7 +36,9 @@ public class SecurityConfig {
         http.httpBasic(Customizer.withDefaults())
             .csrf(c -> c.disable())
             .cors(Customizer.withDefaults())
-            .authorizeRequests(c -> c.anyRequest().authenticated());
+            .authorizeRequests(
+                c -> c.requestMatchers(AppPaths.API_BASE_PATH + "/login").permitAll()
+                        .anyRequest().authenticated());
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
