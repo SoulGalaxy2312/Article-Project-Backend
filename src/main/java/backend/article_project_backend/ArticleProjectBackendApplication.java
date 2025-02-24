@@ -2,21 +2,27 @@ package backend.article_project_backend;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.user.model.User;
+import backend.article_project_backend.user.model.UserRole;
 import backend.article_project_backend.user.repository.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
-public class ArticleProjectBackendApplication implements CommandLineRunner {
+public class ArticleProjectBackendApplication {
 
 	public static void main(String[] args) {
 
@@ -30,53 +36,53 @@ public class ArticleProjectBackendApplication implements CommandLineRunner {
     private ArticleRepository articleRepository;
 
     @Autowired
-    private UserRepository authorRepository;
+    private UserRepository userRepository;
 
-	@Override
-public void run(String... args) throws Exception {
-    // First, create and save 50 authors
-    for (int i = 1; i <= 50; i++) {
-        User author = new User();
-        author.setUsername("Author " + i);  // Unique author full name
-        author.setBirthDate(LocalDate.of(1980 + (i % 40), 1 + (i % 12), 1));  // Unique birth date
-        author.setSubscriber(i % 2 == 0);  // Alternate subscription status
+    @Autowired
+    private PasswordEncoder encoder;
 
-        // Save to the database
-        authorRepository.save(author);
+	@Bean
+    public CommandLineRunner seedDatabase() {
+        return args -> {
+            List<User> users = new ArrayList<>();
+            List<Article> articles = new ArrayList<>();
+            Random random = new Random();
 
-        // Print the saved author ID for reference
-        System.out.println("Author " + i + " saved with ID: " + author.getId());
+            // Generate 50 users
+            for (int i = 1; i <= 50; i++) {
+                User user = new User();
+                user.setUsername("user" + i);
+                String encodedPassword = encoder.encode("password" + i);
+                user.setPassword(encodedPassword); // Normally, passwords should be encoded
+                user.setRole(random.nextBoolean() ? UserRole.ROLE_USER : UserRole.ROLE_ADMIN);
+                user.setBirthDate(LocalDate.of(1990 + random.nextInt(30), random.nextInt(12) + 1, random.nextInt(28) + 1));
+                user.setSubscriber(random.nextBoolean());
+                users.add(user);
+            }
+
+            // Save users first
+            userRepository.saveAll(users);
+
+            // Generate 50 articles
+            for (int i = 1; i <= 50; i++) {
+                Article article = new Article();
+                article.setUser(users.get(random.nextInt(users.size()))); // Assign a random user
+                article.setTitle("Article " + i);
+                article.setTopic("Topic " + (random.nextInt(10) + 1));
+                article.setMainImageUrl("https://example.com/image" + i + ".jpg");
+                article.setTags(List.of("tag" + random.nextInt(5), "tag" + random.nextInt(5)));
+                article.setAbstractContent("This is an abstract for article " + i);
+                article.setPremium(random.nextBoolean());
+                article.setStatus(random.nextBoolean() ? "PUBLISHED" : "DRAFT");
+                article.setViews(random.nextInt(1000));
+                article.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(365)));
+                articles.add(article);
+            }
+
+            // Save articles
+            articleRepository.saveAll(articles);
+
+            System.out.println("50 Users and 50 Articles have been created successfully!");
+        };
     }
-
-    List<String> tagNames = List.of("Java", "Spring Boot", "Backend");
-
-    System.out.println("Tags saved");
-    
-    for (int i = 1; i <= 50; i++) {
-        Article article = new Article();
-        
-        // Assign an author to each article
-        User author = authorRepository.findById(i)
-                .orElseThrow(() -> new RuntimeException("Author not found with ID: "));
-                
-        article.setUser(author);
-
-        article.setTitle("Spring Boot Article " + i);
-        article.setTopic("Technology");
-        article.setMainImageUrl("https://example.com/image" + i + ".jpg");
-        article.setTags(tagNames); // Assigning preloaded tags
-        article.setAbstractContent("This is a summary of article " + i);
-        article.setPremium(i % 2 == 0);
-        article.setStatus(i % 2 == 0 ? "PUBLISHED" : "DRAFT");
-        article.setViews(10 + i);
-        article.setCreatedAt(LocalDateTime.now().minusDays(i));
-
-        // Save to the database
-        articleRepository.save(article);
-
-        // Print the saved article ID for reference
-        System.out.println("Article " + i + " saved with ID: " + article.getId());
-    }
-}
-
 }

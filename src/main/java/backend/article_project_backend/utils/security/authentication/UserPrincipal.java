@@ -25,8 +25,7 @@ public class UserPrincipal implements UserDetails {
         return this.user.getPassword();
     }
 
-    // 22.2.2025 only has 1 user role
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singleton(new SimpleGrantedAuthority(user.getRole().toString()));
     }
 }
