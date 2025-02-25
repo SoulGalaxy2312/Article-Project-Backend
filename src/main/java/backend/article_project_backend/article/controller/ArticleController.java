@@ -35,9 +35,15 @@ public class ArticleController {
         return articleService.getTenArticlesWithMostViews();
     }
     
+    // Read a specific article
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}")
     public FullArticleDTO getSpecificArticle(@PathVariable String id) {
         return articleService.getSpecificArticle(id);    
+    }
+
+    @GetMapping(AppPaths.ARTICLE_URI + "/{id}/relevantArticles")
+    public List<ArticlePreviewDTO> getRelevantArticles(@PathVariable String id) {
+        return articleService.getRelevantArticle(id);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

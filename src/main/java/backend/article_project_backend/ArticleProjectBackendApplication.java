@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -82,6 +83,11 @@ public class ArticleProjectBackendApplication {
             // Save articles
             articleRepository.saveAll(articles);
 
+            if (!articles.isEmpty()) {
+                UUID testArticleId = articles.get(0).getId(); // Get ID of the first article
+                System.out.println("Test article ID: " + testArticleId);
+            }
+            
             System.out.println("50 Users and 50 Articles have been created successfully!");
         };
     }
