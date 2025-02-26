@@ -12,11 +12,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.repository.ArticleRepository;
+import backend.article_project_backend.comment.model.Comment;
+import backend.article_project_backend.comment.repository.CommentRepository;
 import backend.article_project_backend.user.model.User;
 import backend.article_project_backend.user.model.UserRole;
 import backend.article_project_backend.user.repository.UserRepository;
@@ -40,6 +41,9 @@ public class ArticleProjectBackendApplication {
     private UserRepository userRepository;
 
     @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
     private PasswordEncoder encoder;
 
 	@Bean
@@ -47,6 +51,7 @@ public class ArticleProjectBackendApplication {
         return args -> {
             List<User> users = new ArrayList<>();
             List<Article> articles = new ArrayList<>();
+            List<Comment> comments = new ArrayList<>();
             Random random = new Random();
 
             // Generate 50 users
@@ -83,11 +88,79 @@ public class ArticleProjectBackendApplication {
             // Save articles
             articleRepository.saveAll(articles);
 
-            if (!articles.isEmpty()) {
-                UUID testArticleId = articles.get(0).getId(); // Get ID of the first article
-                System.out.println("Test article ID: " + testArticleId);
+            // Select a specific article for comments
+            Article selectedArticle = articles.get(0); // Use the first article
+            UUID testArticleId = selectedArticle.getId();
+
+            // Generate 30 comments with a 4-level tree structure
+            List<Comment> level1 = new ArrayList<>();
+            List<Comment> level2 = new ArrayList<>();
+            List<Comment> level3 = new ArrayList<>();
+            List<Comment> level4 = new ArrayList<>();
+
+            // Generate level-1 comments (top-level, no parent)
+            for (int i = 1; i <= 5; i++) {
+                Comment comment = new Comment();
+                comment.setArticle(selectedArticle);
+                comment.setUser(users.get(random.nextInt(users.size())));
+                comment.setContent("Level 1 Comment " + i);
+                comment.setCreatedAt(LocalDateTime.now().minusHours(random.nextInt(24)));
+                comment.setParent(null);
+                level1.add(comment);
             }
-            
+
+            comments.addAll(level1);
+
+            // Generate level-2 comments (replies to level-1)
+            for (Comment parent : level1) {
+                for (int i = 1; i <= 3; i++) {
+                    Comment comment = new Comment();
+                    comment.setArticle(selectedArticle);
+                    comment.setUser(users.get(random.nextInt(users.size())));
+                    comment.setContent("Level 2 Reply to " + parent.getId());
+                    comment.setCreatedAt(LocalDateTime.now().minusHours(random.nextInt(24)));
+                    comment.setParent(parent);
+                    level2.add(comment);
+                }
+            }
+
+            comments.addAll(level2);
+
+            // Generate level-3 comments (replies to level-2)
+            for (Comment parent : level2) {
+                for (int i = 1; i <= 2; i++) {
+                    Comment comment = new Comment();
+                    comment.setArticle(selectedArticle);
+                    comment.setUser(users.get(random.nextInt(users.size())));
+                    comment.setContent("Level 3 Reply to " + parent.getId());
+                    comment.setCreatedAt(LocalDateTime.now().minusHours(random.nextInt(24)));
+                    comment.setParent(parent);
+                    level3.add(comment);
+                }
+            }
+
+            comments.addAll(level3);
+
+            // Generate level-4 comments (replies to level-3)
+            for (Comment parent : level3) {
+                for (int i = 1; i <= 1; i++) { // Only one reply per level-3 comment
+                    Comment comment = new Comment();
+                    comment.setArticle(selectedArticle);
+                    comment.setUser(users.get(random.nextInt(users.size())));
+                    comment.setContent("Level 4 Reply to " + parent.getId());
+                    comment.setCreatedAt(LocalDateTime.now().minusHours(random.nextInt(24)));
+                    comment.setParent(parent);
+                    level4.add(comment);
+                }
+            }
+
+            comments.addAll(level4);
+
+            // Save comments
+            commentRepository.saveAll(comments);
+
+            System.out.println("Test article ID: " + testArticleId);
+            System.out.println("30 Comments with 4-level tree structure created successfully!");
             System.out.println("50 Users and 50 Articles have been created successfully!");
         };
     }
