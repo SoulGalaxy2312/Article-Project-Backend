@@ -1,7 +1,5 @@
 package backend.article_project_backend.utils.security.authentication;
 
-import java.util.List;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,12 +19,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List<User> users = userRepository.findByUsername(username);
+        User user = 
+            userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Can't find user with username: " + username));
 
-        if (users.isEmpty()) {
-            throw new UsernameNotFoundException("Can't find user with username: " + username);
-        }
-
-        return new UserPrincipal(users.get(0));
+        return new UserPrincipal(user);
     }
 }

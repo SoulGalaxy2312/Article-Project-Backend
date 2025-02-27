@@ -4,17 +4,14 @@ import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
 import backend.article_project_backend.article.service.ArticleService;
 import backend.article_project_backend.utils.common.path.AppPaths;
-import jakarta.persistence.EntityNotFoundException;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class ArticleController {
@@ -37,17 +34,12 @@ public class ArticleController {
     
     // Read a specific article
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}")
-    public FullArticleDTO getSpecificArticle(@PathVariable String id) {
+    public FullArticleDTO getSpecificArticle(@PathVariable UUID id) {
         return articleService.getSpecificArticle(id);    
     }
 
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}/relevantArticles")
-    public List<ArticlePreviewDTO> getRelevantArticles(@PathVariable String id) {
+    public List<ArticlePreviewDTO> getRelevantArticles(@PathVariable UUID id) {
         return articleService.getRelevantArticle(id);
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

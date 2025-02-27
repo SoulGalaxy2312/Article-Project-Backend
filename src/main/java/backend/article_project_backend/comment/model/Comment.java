@@ -16,14 +16,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Comment {
     
+    public Comment(Article article, User user, String content, LocalDateTime createdAt, Comment parent) {
+        this.article = article;
+        this.user = user;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.parent = parent;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

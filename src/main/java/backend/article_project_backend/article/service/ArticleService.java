@@ -50,22 +50,20 @@ public class ArticleService {
                         .collect(Collectors.toList());
     }
 
-    public FullArticleDTO getSpecificArticle(String id) {
-        UUID uuid = UUID.fromString(id);
-
+    public FullArticleDTO getSpecificArticle(UUID id) {
         return articleRepository
-                    .findById(uuid)
+                    .findById(id)
                     .map(ArticleMapper::toFullArticleDTO)
                     .orElseThrow(() -> new EntityNotFoundException("Article not found with id: " + id));
     }
 
-    public List<ArticlePreviewDTO> getRelevantArticle(String id) {
-        UUID uuid = UUID.fromString(id);
-
-        String topic = articleRepository.getById(uuid).getTopic();
+    public List<ArticlePreviewDTO> getRelevantArticle(UUID id) {
+        Article article = articleRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Not found article with id: " + id));
         
+        String topic = article.getTopic();
         Specification<Article> spec = Specification.where(ArticleSpecification.hasTopic(topic))
-                                                    .and(ArticleSpecification.excludeArticleById(uuid))
+                                                    .and(ArticleSpecification.excludeArticleById(id))
                                                     .and(ArticleSpecification.latestArticles());
         Pageable pageable = PageRequest.ofSize(5);
 
