@@ -38,6 +38,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeRequests(
                 c -> c.requestMatchers(AppPaths.API_BASE_PATH + "/login").permitAll()
+                        .requestMatchers(AppPaths.HOMEPAGE_URI + "/**").permitAll()
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

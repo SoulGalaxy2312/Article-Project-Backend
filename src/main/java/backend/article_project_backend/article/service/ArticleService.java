@@ -2,14 +2,21 @@ package backend.article_project_backend.article.service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import backend.article_project_backend.article.controller.ArticleController;
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
 import backend.article_project_backend.article.mapper.ArticleMapper;
@@ -23,38 +30,45 @@ public class ArticleService {
     
     private final ArticleRepository articleRepository;
 
-    private final int HOME_PAGE_NUM_ARTICLES = 25;
-    private final int HOME_PAGE_NUM_MOST_VIEWS_ARTICLES = 10;
+    private final int HOMEPAGE_NUM_LATEST_ARTICLES = 10;
+    private final int HOMEPAGE_NUM_MOST_VIEWS_ARTICLES = 3;
+
+    private final Logger logger = Logger.getLogger(ArticleController.class.getName());
 
     public ArticleService(ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
     }
 
-    public List<ArticlePreviewDTO> getArticlesPreviewByPage(int pageNumber) {
+    public List<ArticlePreviewDTO> getHomepageLatestArticles(int pageNumber) {
+        logger.info("Get into Article service");
         Specification<Article> spec = Specification.where(ArticleSpecification.latestArticles());
-        Pageable pageable = PageRequest.of(pageNumber, HOME_PAGE_NUM_ARTICLES);
-        
-        List<Article> articles = articleRepository.findAll(spec, pageable).getContent();
-        return articles.stream()
-                        .map(ArticleMapper::toArticlePreviewDTO)
-                        .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNumber, HOMEPAGE_NUM_LATEST_ARTICLES);        
+        Page<Article> articles = articleRepository.findAll(spec, pageable);
+        return ArticleMapper.toArticlePreviewDTOsList(articles.getContent());
     }
 
-    public List<ArticlePreviewDTO> getTenArticlesWithMostViews() {
-        Pageable pageable = PageRequest.ofSize(HOME_PAGE_NUM_MOST_VIEWS_ARTICLES);
-
+    public List<ArticlePreviewDTO> getHomepageMostViewedArticles() {
+        Pageable pageable = PageRequest.ofSize(HOMEPAGE_NUM_MOST_VIEWS_ARTICLES);
         Page<Article> articles = articleRepository.findAllByOrderByViewsDesc(pageable);
-
-        return articles.stream()
-                        .map(ArticleMapper::toArticlePreviewDTO)
-                        .collect(Collectors.toList());
+        return ArticleMapper.toArticlePreviewDTOsList(articles.getContent());
     }
 
     public FullArticleDTO getSpecificArticle(UUID id) {
-        return articleRepository
-                    .findById(id)
-                    .map(ArticleMapper::toFullArticleDTO)
-                    .orElseThrow(() -> new EntityNotFoundException("Article not found with id: " + id));
+        Article article = articleRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Article not found with id: " + id));
+        
+        if (article.isPremium()) {
+            if (!hasRoleUser()) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must have the USER role to access the premium article.");
+            }
+        }
+
+        return ArticleMapper.toFullArticleDTO(article);
+    }
+
+    private boolean hasRoleUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     public List<ArticlePreviewDTO> getRelevantArticle(UUID id) {

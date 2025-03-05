@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import backend.article_project_backend.article.model.Article;
+import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.comment.model.Comment;
 import backend.article_project_backend.comment.repository.CommentRepository;
@@ -79,7 +80,7 @@ public class ArticleProjectBackendApplication {
                 article.setTags(List.of("tag" + random.nextInt(5), "tag" + random.nextInt(5)));
                 article.setAbstractContent("This is an abstract for article " + i);
                 article.setPremium(random.nextBoolean());
-                article.setStatus(random.nextBoolean() ? "PUBLISHED" : "DRAFT");
+                article.setStatus(random.nextBoolean() ? ArticleStatusEnum.PENDING : ArticleStatusEnum.ACCEPTED);
                 article.setViews(random.nextInt(1000));
                 article.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(365)));
                 articles.add(article);

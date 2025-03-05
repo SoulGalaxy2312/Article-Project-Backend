@@ -8,6 +8,8 @@ import java.util.UUID;
 import backend.article_project_backend.user.model.User;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,11 +41,12 @@ public class Article {
     
     @ElementCollection
     private List<String> tags = new ArrayList<>();
+    
+    @Enumerated(EnumType.STRING)
+    private ArticleStatusEnum status;
 
     private String abstractContent;
     private boolean isPremium;
-    private String status;
     private int views;
-
     private LocalDateTime createdAt;
 }

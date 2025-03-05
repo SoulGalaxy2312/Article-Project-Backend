@@ -1,5 +1,9 @@
 package backend.article_project_backend.article.mapper;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
 import backend.article_project_backend.article.model.Article;
@@ -31,5 +35,11 @@ public class ArticleMapper {
             article.isPremium(), 
             article.getViews(), 
             article.getCreatedAt());
+    }
+
+    public static List<ArticlePreviewDTO> toArticlePreviewDTOsList(Collection<Article> articles) {
+        return articles.stream()
+                        .map(ArticleMapper::toArticlePreviewDTO)
+                        .collect(Collectors.toList());
     }
 }

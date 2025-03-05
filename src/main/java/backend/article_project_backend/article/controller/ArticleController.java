@@ -2,7 +2,9 @@ package backend.article_project_backend.article.controller;
 
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
+import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.service.ArticleService;
+import backend.article_project_backend.utils.common.dto.ApiResponse;
 import backend.article_project_backend.utils.common.path.AppPaths;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,34 +14,36 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @RestController
 public class ArticleController {
     private final ArticleService articleService;
+
+    private final Logger logger = Logger.getLogger(ArticleController.class.getName());
 
     public ArticleController(ArticleService articleService) {
         this.articleService = articleService;
     }
 
     @GetMapping(AppPaths.HOMEPAGE_URI + "/latestArticles")
-    public List<ArticlePreviewDTO> getMethodName(@RequestParam int pageNumber) {
-
-        return articleService.getArticlesPreviewByPage(pageNumber);
+    public ApiResponse<List<ArticlePreviewDTO>> getHomepageLatestArticles(@RequestParam int pageNumber) {
+        return new ApiResponse<>(articleService.getHomepageLatestArticles(pageNumber));
     }
     
-    @GetMapping(AppPaths.HOMEPAGE_URI + "/tenMostViewedArticles")
-    public List<ArticlePreviewDTO> getMethodName() {
-        return articleService.getTenArticlesWithMostViews();
+    @GetMapping(AppPaths.HOMEPAGE_URI + "/mostViewedArticles")
+    public ApiResponse<List<ArticlePreviewDTO>> getHomepageMostViewedArticles() {
+        return new ApiResponse<>(articleService.getHomepageMostViewedArticles());
     }
     
     // Read a specific article
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}")
-    public FullArticleDTO getSpecificArticle(@PathVariable UUID id) {
-        return articleService.getSpecificArticle(id);    
+    public ApiResponse<FullArticleDTO> getSpecificArticle(@PathVariable UUID id) {
+        return new ApiResponse<>(articleService.getSpecificArticle(id));    
     }
 
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}/relevantArticles")
-    public List<ArticlePreviewDTO> getRelevantArticles(@PathVariable UUID id) {
-        return articleService.getRelevantArticle(id);
+    public ApiResponse<List<ArticlePreviewDTO>> getRelevantArticles(@PathVariable UUID id) {
+        return new ApiResponse<>(articleService.getRelevantArticle(id));
     }
 }
