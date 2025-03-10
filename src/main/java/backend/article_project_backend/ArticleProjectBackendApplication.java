@@ -80,7 +80,7 @@ public class ArticleProjectBackendApplication {
                 article.setTags(List.of("tag" + random.nextInt(5), "tag" + random.nextInt(5)));
                 article.setAbstractContent("This is an abstract for article " + i);
                 article.setPremium(random.nextBoolean());
-                article.setStatus(random.nextBoolean() ? ArticleStatusEnum.PENDING : ArticleStatusEnum.ACCEPTED);
+                article.setStatus(random.nextBoolean() ? ArticleStatusEnum.PENDING : ArticleStatusEnum.PUBLISHED);
                 article.setViews(random.nextInt(1000));
                 article.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(365)));
                 articles.add(article);

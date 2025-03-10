@@ -17,15 +17,22 @@ public class UserPrincipal implements UserDetails {
         this.user = user;
     }
     
+    public User getUser() {
+        return this.user;
+    }
+
+    @Override
     public String getUsername() {
         return this.user.getUsername();
     }
 
+    @Override
     public String getPassword() {
         return this.user.getPassword();
     }
 
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(new SimpleGrantedAuthority(user.getRole().toString()));
-    }
+    }    
 }

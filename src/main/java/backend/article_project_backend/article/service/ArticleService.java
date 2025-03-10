@@ -18,25 +18,32 @@ import org.springframework.web.server.ResponseStatusException;
 
 import backend.article_project_backend.article.controller.ArticleController;
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
+import backend.article_project_backend.article.dto.CreateArticleRequestDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
 import backend.article_project_backend.article.mapper.ArticleMapper;
 import backend.article_project_backend.article.model.Article;
+import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.article.spec.ArticleSpecification;
+import backend.article_project_backend.image.service.ImageService;
+import backend.article_project_backend.user.model.User;
+import backend.article_project_backend.utils.security.authentication.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ArticleService {
     
     private final ArticleRepository articleRepository;
+    private final ImageService imageService;
 
     private final int HOMEPAGE_NUM_LATEST_ARTICLES = 10;
     private final int HOMEPAGE_NUM_MOST_VIEWS_ARTICLES = 3;
 
     private final Logger logger = Logger.getLogger(ArticleController.class.getName());
 
-    public ArticleService(ArticleRepository articleRepository) {
+    public ArticleService(ArticleRepository articleRepository, ImageService imageService) {
         this.articleRepository = articleRepository;
+        this.imageService = imageService;
     }
 
     public List<ArticlePreviewDTO> getHomepageLatestArticles(int pageNumber) {
@@ -85,5 +92,36 @@ public class ArticleService {
         return relevantArticles.stream()
                                 .map(a -> ArticleMapper.toArticlePreviewDTO(a))
                                 .collect(Collectors.toList());
+    }
+
+    public FullArticleDTO createArticle(CreateArticleRequestDTO createArticleRequestDTO) {
+        Article article = new Article();
+        try {
+            String mainImageURL = imageService.uploadImage(createArticleRequestDTO.mainImage());
+            article.setMainImageUrl(mainImageURL);    
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            User user = userPrincipal.getUser();            
+            article.setUser(user);
+        } else {
+            throw new RuntimeException("User not authenticated");
+        }
+        
+        article.setTitle(createArticleRequestDTO.title());
+        article.setTopic(createArticleRequestDTO.topic());
+        article.setTags(createArticleRequestDTO.tags());
+        article.setAbstractContent(createArticleRequestDTO.abstractContent());
+        article.setPremium(createArticleRequestDTO.isPremium());
+        article.setCreatedAt(null);
+        article.setStatus(ArticleStatusEnum.PENDING);
+        article.setViews(0);
+        articleRepository.save(article);
+
+        return ArticleMapper.toFullArticleDTO(article);
     }
 }
