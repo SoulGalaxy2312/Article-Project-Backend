@@ -39,8 +39,6 @@ public class User {
 
     private LocalDate birthDate;
 
-    private boolean isSubscriber;
-
     @OneToMany(mappedBy = "user")
     private List<Article> articles;
 }

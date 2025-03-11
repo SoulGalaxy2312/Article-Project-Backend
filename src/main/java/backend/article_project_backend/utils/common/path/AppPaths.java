@@ -8,4 +8,5 @@ public class AppPaths {
     public static final String HOMEPAGE_URI = API_BASE_PATH + "/homepage";
     public static final String ARTICLE_URI  = API_BASE_PATH + "/article";
     public static final String IMAGE_URI  = API_BASE_PATH + "/image";
+    public static final String USER_URI  = API_BASE_PATH + "/user";
 }

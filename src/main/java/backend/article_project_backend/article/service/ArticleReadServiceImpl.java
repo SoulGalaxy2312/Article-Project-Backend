@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,11 +18,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
+import backend.article_project_backend.article.dto.ArticleProfileDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
 import backend.article_project_backend.article.mapper.ArticleMapper;
 import backend.article_project_backend.article.model.Article;
+import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.article.spec.ArticleSpecification;
+import backend.article_project_backend.user.model.User;
+import backend.article_project_backend.utils.security.authentication.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
@@ -62,10 +67,12 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         Article article = articleRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Article not found with id: " + id));
         
-        if (article.isPremium()) {
-            if (!hasRoleUser()) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must have the USER role to access the premium article.");
-            }
+        if (article.getStatus() != ArticleStatusEnum.PUBLISHED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to access this article.");
+        }
+
+        if (article.isPremium() && !hasRoleUser()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must have the USER role to access the premium article.");
         }
 
         return ArticleMapper.toFullArticleDTO(article);
@@ -86,5 +93,19 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return relevantArticles.stream()
                                 .map(a -> ArticleMapper.toArticlePreviewDTO(a))
                                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public List<ArticleProfileDTO> getArticleProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object userObject = authentication.getPrincipal();
+        UserPrincipal userPrincipal = (UserPrincipal) userObject;
+        User user = userPrincipal.getUser();
+
+        List<Article> articles = articleRepository.findByUser(user);
+        return articles.stream()
+                        .map(ArticleMapper::toArticleProfileDTO)
+                        .collect(Collectors.toList());
     }
 }

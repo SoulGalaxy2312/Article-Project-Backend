@@ -63,7 +63,6 @@ public class ArticleProjectBackendApplication {
                 user.setPassword(encodedPassword); // Normally, passwords should be encoded
                 user.setRole(random.nextBoolean() ? UserRole.ROLE_USER : UserRole.ROLE_ADMIN);
                 user.setBirthDate(LocalDate.of(1990 + random.nextInt(30), random.nextInt(12) + 1, random.nextInt(28) + 1));
-                user.setSubscriber(random.nextBoolean());
                 users.add(user);
             }
 
