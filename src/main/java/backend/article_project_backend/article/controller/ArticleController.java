@@ -3,10 +3,13 @@ package backend.article_project_backend.article.controller;
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.CreateArticleRequestDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
-import backend.article_project_backend.article.service.ArticleService;
+import backend.article_project_backend.article.service.ArticleReadService;
+
+import backend.article_project_backend.article.service.ArticleWriteService;
 import backend.article_project_backend.utils.common.dto.ApiResponse;
 import backend.article_project_backend.utils.common.path.AppPaths;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,39 +25,42 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 public class ArticleController {
-    private final ArticleService articleService;
+
+    private final ArticleReadService articleReadService;
+    private final ArticleWriteService articleWriteService;
 
     private final Logger logger = Logger.getLogger(ArticleController.class.getName());
 
-    public ArticleController(ArticleService articleService) {
-        this.articleService = articleService;
+    public ArticleController(ArticleReadService articleReadService, ArticleWriteService articleWriteService) {
+        this.articleReadService = articleReadService;
+        this.articleWriteService = articleWriteService;
     }
 
     @GetMapping(AppPaths.HOMEPAGE_URI + "/latestArticles")
-    public ApiResponse<List<ArticlePreviewDTO>> getHomepageLatestArticles(@RequestParam int pageNumber) {
-        return new ApiResponse<>(articleService.getHomepageLatestArticles(pageNumber));
+    public ResponseEntity<ApiResponse<List<ArticlePreviewDTO>>> getHomepageLatestArticles(@RequestParam int pageNumber) {
+        return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getHomepageLatestArticles(pageNumber)));
     }
     
     @GetMapping(AppPaths.HOMEPAGE_URI + "/mostViewedArticles")
-    public ApiResponse<List<ArticlePreviewDTO>> getHomepageMostViewedArticles() {
-        return new ApiResponse<>(articleService.getHomepageMostViewedArticles());
+    public ResponseEntity<ApiResponse<List<ArticlePreviewDTO>>> getHomepageMostViewedArticles() {
+        return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getHomepageMostViewedArticles()));
     }
     
     // Read a specific article
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}")
-    public ApiResponse<FullArticleDTO> getSpecificArticle(@PathVariable UUID id) {
-        return new ApiResponse<>(articleService.getSpecificArticle(id));    
+    public ResponseEntity<ApiResponse<FullArticleDTO>> getSpecificArticle(@PathVariable UUID id) {
+        return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getSpecificArticle(id)));
     }
 
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}/relevantArticles")
-    public ApiResponse<List<ArticlePreviewDTO>> getRelevantArticles(@PathVariable UUID id) {
-        return new ApiResponse<>(articleService.getRelevantArticle(id));
+    public ResponseEntity<ApiResponse<List<ArticlePreviewDTO>>> getRelevantArticles(@PathVariable UUID id) {
+        return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getRelevantArticle(id)));
     }
 
     @PostMapping(AppPaths.ARTICLE_URI + "/createArticle")
     @PreAuthorize("hasRole('USER')")
-    public ApiResponse<FullArticleDTO> createArticle(@ModelAttribute @Validated CreateArticleRequestDTO createArticleRequestDTO) {
-        return new ApiResponse<FullArticleDTO>(articleService.createArticle(createArticleRequestDTO));        
+    public ResponseEntity<ApiResponse<FullArticleDTO>> createArticle(@ModelAttribute @Validated CreateArticleRequestDTO createArticleRequestDTO) {
+        return ResponseEntity.ok().body(new ApiResponse<FullArticleDTO>(articleWriteService.createArticle(createArticleRequestDTO)));        
     }
     
 }
