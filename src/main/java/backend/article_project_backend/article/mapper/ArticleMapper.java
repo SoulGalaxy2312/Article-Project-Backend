@@ -41,6 +41,7 @@ public class ArticleMapper {
     public static ArticleProfileDTO toArticleProfileDTO(Article article) {
         return new ArticleProfileDTO(
             article.getId(),
+            article.getUser().getUsername(),
             article.getStatus(),
             article.getTitle(),
             article.getTopic(),

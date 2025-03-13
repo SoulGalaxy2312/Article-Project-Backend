@@ -2,6 +2,7 @@ package backend.article_project_backend.article.service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Primary;
@@ -26,12 +27,14 @@ import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.article.spec.ArticleSpecification;
 import backend.article_project_backend.user.model.User;
+import backend.article_project_backend.user.model.UserRole;
 import backend.article_project_backend.utils.security.authentication.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 @Primary
 public class ArticleReadServiceImpl implements ArticleReadService {
+    private Logger logger = Logger.getLogger(ArticleReadServiceImpl.class.getName());
     
     private final ArticleRepository articleRepository;
 
@@ -97,15 +100,19 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public List<ArticleProfileDTO> getArticleProfile() {
+    public List<ArticleProfileDTO> getArticleInProfiles(ArticleStatusEnum articleStatus) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object userObject = authentication.getPrincipal();
         UserPrincipal userPrincipal = (UserPrincipal) userObject;
         User user = userPrincipal.getUser();
 
-        List<Article> articles = articleRepository.findByUser(user);
-        return articles.stream()
-                        .map(ArticleMapper::toArticleProfileDTO)
-                        .collect(Collectors.toList());
+        Specification<Article> spec = Specification.where(ArticleSpecification.withStatus(articleStatus));
+        if (UserRole.ROLE_USER.equals(user.getRole())) {
+            logger.info("USER gets authenticated");
+            spec = spec.and(ArticleSpecification.getArticleWithUserId(user.getId()));
+        }
+
+        List<Article> articles = articleRepository.findAll(spec);
+        return ArticleMapper.toArticleProfileDTOsList(articles);
     }
 }

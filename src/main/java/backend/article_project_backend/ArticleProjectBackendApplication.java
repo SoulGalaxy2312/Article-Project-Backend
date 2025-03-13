@@ -55,31 +55,43 @@ public class ArticleProjectBackendApplication {
             List<Comment> comments = new ArrayList<>();
             Random random = new Random();
 
-            // Generate 50 users
-            for (int i = 1; i <= 50; i++) {
-                User user = new User();
-                user.setUsername("user" + i);
-                String encodedPassword = encoder.encode("password" + i);
-                user.setPassword(encodedPassword); // Normally, passwords should be encoded
-                user.setRole(random.nextBoolean() ? UserRole.ROLE_USER : UserRole.ROLE_ADMIN);
-                user.setBirthDate(LocalDate.of(1990 + random.nextInt(30), random.nextInt(12) + 1, random.nextInt(28) + 1));
-                users.add(user);
-            }
+            User user1 = new User();
+            user1.setUsername("user1");
+            String encodedPassword = encoder.encode("password");
+            user1.setPassword(encodedPassword); 
+            user1.setRole(UserRole.ROLE_USER);
+            user1.setBirthDate(LocalDate.of(1990 + random.nextInt(30), random.nextInt(12) + 1, random.nextInt(28) + 1));
+            users.add(user1);
+            
+            User user2 = new User();
+            user2.setUsername("user2");
+            user2.setPassword(encodedPassword); 
+            user2.setRole(UserRole.ROLE_USER);
+            user2.setBirthDate(LocalDate.of(1990 + random.nextInt(30), random.nextInt(12) + 1, random.nextInt(28) + 1));
+            users.add(user2);
+
+            User admin = new User();
+            admin.setUsername("admin");
+            admin.setPassword(encodedPassword); 
+            admin.setRole(UserRole.ROLE_ADMIN);
+            admin.setBirthDate(LocalDate.of(1990 + random.nextInt(30), random.nextInt(12) + 1, random.nextInt(28) + 1));
+            users.add(admin);
 
             // Save users first
             userRepository.saveAll(users);
 
-            // Generate 50 articles
-            for (int i = 1; i <= 50; i++) {
+            ArticleStatusEnum[] statuses = {ArticleStatusEnum.PENDING, ArticleStatusEnum.REJECTED, ArticleStatusEnum.PUBLISHED};
+            // Generate 20 articles
+            for (int i = 1; i <= 20; i++) {
                 Article article = new Article();
-                article.setUser(users.get(random.nextInt(users.size()))); // Assign a random user
+                article.setUser(random.nextBoolean() ? user1 : user2); // Assign a random user
                 article.setTitle("Article " + i);
                 article.setTopic("Topic " + (random.nextInt(10) + 1));
                 article.setMainImageUrl("https://example.com/image" + i + ".jpg");
                 article.setTags(List.of("tag" + random.nextInt(5), "tag" + random.nextInt(5)));
                 article.setAbstractContent("This is an abstract for article " + i);
                 article.setPremium(random.nextBoolean());
-                article.setStatus(random.nextBoolean() ? ArticleStatusEnum.PENDING : ArticleStatusEnum.PUBLISHED);
+                article.setStatus(statuses[random.nextInt(statuses.length)]);
                 article.setViews(random.nextInt(1000));
                 article.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(365)));
                 articles.add(article);

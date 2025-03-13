@@ -8,6 +8,8 @@ import backend.article_project_backend.article.model.ArticleStatusEnum;
 public record ArticleProfileDTO(
     UUID id,
 
+    String username,
+
     ArticleStatusEnum status,
     String title,
     String topic,

@@ -1,8 +1,10 @@
 package backend.article_project_backend.article.controller;
 
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
+import backend.article_project_backend.article.dto.ArticleProfileDTO;
 import backend.article_project_backend.article.dto.CreateArticleRequestDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
+import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.service.ArticleReadService;
 
 import backend.article_project_backend.article.service.ArticleWriteService;
@@ -61,6 +63,15 @@ public class ArticleController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ApiResponse<FullArticleDTO>> createArticle(@ModelAttribute @Validated CreateArticleRequestDTO createArticleRequestDTO) {
         return ResponseEntity.ok().body(new ApiResponse<FullArticleDTO>(articleWriteService.createArticle(createArticleRequestDTO)));        
+    }
+
+
+    @GetMapping(AppPaths.USER_URI + "/articles")
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<ApiResponse<List<ArticleProfileDTO>>> getArticlesInProfile(@RequestParam ArticleStatusEnum articleStatus) {
+        List<ArticleProfileDTO> articles = articleReadService.getArticleInProfiles(articleStatus);
+        ApiResponse<List<ArticleProfileDTO>> response = new ApiResponse<>(articles);
+        return ResponseEntity.ok().body(response);
     }
     
 }

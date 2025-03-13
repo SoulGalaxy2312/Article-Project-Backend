@@ -6,6 +6,7 @@ import java.util.UUID;
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.ArticleProfileDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
+import backend.article_project_backend.article.model.ArticleStatusEnum;
 
 public interface ArticleReadService {
 
@@ -14,5 +15,5 @@ public interface ArticleReadService {
     FullArticleDTO getSpecificArticle(UUID id);
     List<ArticlePreviewDTO> getRelevantArticle(UUID id);
 
-    List<ArticleProfileDTO> getArticleProfile();
+    List<ArticleProfileDTO> getArticleInProfiles(ArticleStatusEnum articleStatus);
 }
