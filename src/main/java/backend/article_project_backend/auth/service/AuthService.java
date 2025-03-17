@@ -5,35 +5,47 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import backend.article_project_backend.auth.dto.AuthRequestDTO;
 import backend.article_project_backend.user.model.User;
-import backend.article_project_backend.user.repository.UserRepository;
+import backend.article_project_backend.utils.config.cache.RedisService;
+import backend.article_project_backend.utils.security.authentication.UserPrincipal;
 import backend.article_project_backend.utils.security.jwt.JwtService;
+import backend.article_project_backend.utils.common.cache.RedisKeys;
 
 @Service
 public class AuthService {
     
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RedisService redisService;
 
     public AuthService(
-        UserRepository userRepository, 
         AuthenticationManager authenticationManager,
-        JwtService jwtService) {
+        JwtService jwtService,
+        RedisService redisService) {
 
             this.authenticationManager = authenticationManager;
             this.jwtService = jwtService;
+            this.redisService = redisService;
         }
 
-    public String verify(User user) {
+    public String verify(AuthRequestDTO authRequest) {
         Authentication authentication = 
             authenticationManager
                 .authenticate(
                     new UsernamePasswordAuthenticationToken(
-                        user.getUsername(), 
-                        user.getPassword()));
+                        authRequest.username(), 
+                        authRequest.password()));
 
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(user.getUsername());
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object userObj = authentication.getPrincipal();
+            UserPrincipal userPrincipal = (UserPrincipal) userObj;
+            User user = userPrincipal.getUser();
+            
+            String redisKey = RedisKeys.USER_ROLE + user.getUsername();
+            redisService.saveData(redisKey, user.getRole().toString());
+            
+            return jwtService.generateToken(authRequest.username());
         } else {
             return "Fail";
         }

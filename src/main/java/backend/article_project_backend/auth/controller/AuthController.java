@@ -1,11 +1,12 @@
 package backend.article_project_backend.auth.controller;
 
 import backend.article_project_backend.auth.dto.AuthRequestDTO;
-import backend.article_project_backend.auth.mapper.AuthMapper;
 import backend.article_project_backend.auth.service.AuthService;
 import backend.article_project_backend.utils.common.path.AppPaths;
+import backend.article_project_backend.utils.common.dto.ApiResponse;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +22,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody AuthRequestDTO authRequest) {
-        return authService.verify(AuthMapper.toEntity(authRequest));
+    public ResponseEntity<ApiResponse<String>> login(@RequestBody AuthRequestDTO authRequest) {
+        ApiResponse<String> response = new ApiResponse<>(authService.verify(authRequest));
+        return ResponseEntity.ok().body(response);
     }
     
 }
