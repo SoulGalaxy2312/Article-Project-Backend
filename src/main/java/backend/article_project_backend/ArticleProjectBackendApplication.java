@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -22,9 +23,12 @@ import backend.article_project_backend.comment.repository.CommentRepository;
 import backend.article_project_backend.user.model.User;
 import backend.article_project_backend.user.model.UserRole;
 import backend.article_project_backend.user.repository.UserRepository;
+import backend.article_project_backend.utils.config.cache.RedisService;
 import io.github.cdimascio.dotenv.Dotenv;
+import backend.article_project_backend.utils.common.cache.RedisKeys;
 
 @SpringBootApplication
+@EnableCaching
 public class ArticleProjectBackendApplication {
 
 	public static void main(String[] args) {
@@ -46,6 +50,9 @@ public class ArticleProjectBackendApplication {
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    private RedisService redisService;
 
 	@Bean
     public CommandLineRunner seedDatabase() {
@@ -81,6 +88,7 @@ public class ArticleProjectBackendApplication {
             userRepository.saveAll(users);
 
             ArticleStatusEnum[] statuses = {ArticleStatusEnum.PENDING, ArticleStatusEnum.REJECTED, ArticleStatusEnum.PUBLISHED};
+            int numPublishedArticles = 0;
             // Generate 20 articles
             for (int i = 1; i <= 20; i++) {
                 Article article = new Article();
@@ -92,6 +100,9 @@ public class ArticleProjectBackendApplication {
                 article.setAbstractContent("This is an abstract for article " + i);
                 article.setPremium(random.nextBoolean());
                 article.setStatus(statuses[random.nextInt(statuses.length)]);
+                if (ArticleStatusEnum.PUBLISHED.equals(article.getStatus())) {
+                    numPublishedArticles++;
+                }
                 article.setViews(random.nextInt(1000));
                 article.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(365)));
                 articles.add(article);
@@ -99,6 +110,7 @@ public class ArticleProjectBackendApplication {
 
             // Save articles
             articleRepository.saveAll(articles);
+            redisService.saveData(RedisKeys.TOTAL_PUBLISHED_ARTICLES, numPublishedArticles);
 
             // Select a specific article for comments
             Article selectedArticle = articles.get(0); // Use the first article

@@ -43,7 +43,7 @@ public class AuthService {
             User user = userPrincipal.getUser();
             
             String redisKey = RedisKeys.USER_ROLE + user.getUsername();
-            redisService.saveData(redisKey, user.getRole().toString());
+            redisService.saveData(redisKey, user.getRole());
             
             return jwtService.generateToken(authRequest.username());
         } else {

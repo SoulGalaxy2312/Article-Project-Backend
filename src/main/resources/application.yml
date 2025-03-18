@@ -1,16 +1,20 @@
 spring:
     datasource:
         url: ${DATABASE_URL}
-        username: ${DATABASE_USER}
-        password: ${DATABASE_PASSWORD}
+        username: ${MYSQL_USER}
+        password: ${MYSQL_PASSWORD}
         driver-class-name: com.mysql.cj.jdbc.Driver
+    sql:
+        init:
+            mode: always
     jpa:
         hibernate:
             ddl-auto: create-drop
-    redis:
-        host: redis
-        port: 6379
-        
+    data:
+        redis:
+            host: redis
+            port: 6379
+
 cloudinary:
     cloud-name: ${CLOUDINARY_CLOUD_NAME}
     api-key: ${CLOUDINARY_API_KEY}

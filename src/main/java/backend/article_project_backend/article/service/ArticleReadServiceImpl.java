@@ -2,7 +2,6 @@ package backend.article_project_backend.article.service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Primary;
@@ -13,11 +12,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
+import backend.article_project_backend.article.dto.ArticlePagingDTO;
 import backend.article_project_backend.article.dto.ArticlePreviewDTO;
 import backend.article_project_backend.article.dto.ArticleProfileDTO;
 import backend.article_project_backend.article.dto.FullArticleDTO;
@@ -28,34 +26,48 @@ import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.article.spec.ArticleSpecification;
 import backend.article_project_backend.user.model.User;
 import backend.article_project_backend.user.model.UserRole;
+import backend.article_project_backend.utils.config.cache.RedisService;
 import backend.article_project_backend.utils.security.authentication.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import backend.article_project_backend.utils.common.cache.RedisKeys;
 
 @Service
 @Primary
+@Slf4j
 public class ArticleReadServiceImpl implements ArticleReadService {
-    private Logger logger = Logger.getLogger(ArticleReadServiceImpl.class.getName());
     
     private final ArticleRepository articleRepository;
+    private final RedisService redisService;
 
     private final int HOMEPAGE_NUM_LATEST_ARTICLES = 10;
     private final int HOMEPAGE_NUM_MOST_VIEWS_ARTICLES = 3;
 
-    public ArticleReadServiceImpl(ArticleRepository articleRepository) {
+    public ArticleReadServiceImpl(ArticleRepository articleRepository, RedisService redisService) {
         this.articleRepository = articleRepository;
-    }
-
-    private boolean hasRoleUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"));
+        this.redisService = redisService;
     }
 
     @Override
-    public List<ArticlePreviewDTO> getHomepageLatestArticles(int pageNumber) {
+    public ArticlePagingDTO getHomepageLatestArticles(int pageNumber) {
         Specification<Article> spec = Specification.where(ArticleSpecification.latestArticles());
         Pageable pageable = PageRequest.of(pageNumber, HOMEPAGE_NUM_LATEST_ARTICLES);        
         Page<Article> articles = articleRepository.findAll(spec, pageable);
-        return ArticleMapper.toArticlePreviewDTOsList(articles.getContent());
+        List<ArticlePreviewDTO> articleDTOs = ArticleMapper.toArticlePreviewDTOsList(articles.getContent());
+        
+        Object totalArticlesObj = redisService.getData(RedisKeys.TOTAL_PUBLISHED_ARTICLES);
+        log.info("Total articles from cache: {}", totalArticlesObj.toString());
+
+        int totalArticles = 0;
+        if (totalArticlesObj instanceof Integer) {
+            totalArticles = (Integer) totalArticlesObj;
+        } else {
+            totalArticles = articles.getTotalPages();
+            redisService.saveData(RedisKeys.TOTAL_PUBLISHED_ARTICLES, totalArticles);
+        }
+
+        int totalPages = totalArticles / HOMEPAGE_NUM_LATEST_ARTICLES + ((totalArticles % HOMEPAGE_NUM_LATEST_ARTICLES == 0) ? 0 : 1);
+        return new ArticlePagingDTO(articleDTOs, pageNumber < totalPages - 1);
     }
 
     @Override
@@ -74,7 +86,12 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to access this article.");
         }
 
-        if (article.isPremium() && !hasRoleUser()) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String redisKey = RedisKeys.USER_ROLE + username;
+
+        String curUserRole = redisService.getData(redisKey).toString();
+        boolean hasRoleUser = UserRole.ROLE_USER.toString().equals(curUserRole);
+        if (article.isPremium() && !hasRoleUser) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must have the USER role to access the premium article.");
         }
 
@@ -108,7 +125,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
         Specification<Article> spec = Specification.where(ArticleSpecification.withStatus(articleStatus));
         if (UserRole.ROLE_USER.equals(user.getRole())) {
-            logger.info("USER gets authenticated");
+            log.info("USER gets authenticated");
             spec = spec.and(ArticleSpecification.getArticleWithUserId(user.getId()));
         }
 
