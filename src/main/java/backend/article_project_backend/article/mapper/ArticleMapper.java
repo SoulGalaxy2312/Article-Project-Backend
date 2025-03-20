@@ -29,13 +29,14 @@ public class ArticleMapper {
             article.getId().toString(), 
             article.getUser().getUsername(), 
             article.getTitle(), 
-            article.getTopic(), 
+            article.getTopic().getName(), 
             article.getMainImageUrl(), 
             article.getTags(), 
             article.getAbstractContent(), 
             article.isPremium(), 
             article.getViews(), 
-            article.getCreatedAt());
+            article.getCreatedAt(),
+            article.getContent());
     }
 
     public static ArticleProfileDTO toArticleProfileDTO(Article article) {
@@ -44,7 +45,7 @@ public class ArticleMapper {
             article.getUser().getUsername(),
             article.getStatus(),
             article.getTitle(),
-            article.getTopic(),
+            article.getTopic().getName(),
             article.getMainImageUrl(),
             article.getTags(),
             article.getAbstractContent(),

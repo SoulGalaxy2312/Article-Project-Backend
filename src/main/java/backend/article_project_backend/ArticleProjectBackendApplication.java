@@ -20,6 +20,8 @@ import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.comment.model.Comment;
 import backend.article_project_backend.comment.repository.CommentRepository;
+import backend.article_project_backend.topic.model.Topic;
+import backend.article_project_backend.topic.service.TopicService;
 import backend.article_project_backend.user.model.User;
 import backend.article_project_backend.user.model.UserRole;
 import backend.article_project_backend.user.repository.UserRepository;
@@ -53,6 +55,9 @@ public class ArticleProjectBackendApplication {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private TopicService topicService;
 
 	@Bean
     public CommandLineRunner seedDatabase() {
@@ -94,17 +99,21 @@ public class ArticleProjectBackendApplication {
                 Article article = new Article();
                 article.setUser(random.nextBoolean() ? user1 : user2); // Assign a random user
                 article.setTitle("Article " + i);
-                article.setTopic("Topic " + (random.nextInt(10) + 1));
+
+                Topic savedTopic = topicService.saveTopic("Topic " + (random.nextInt(10) + 1));
+                article.setTopic(savedTopic);
+                
                 article.setMainImageUrl("https://example.com/image" + i + ".jpg");
                 article.setTags(List.of("tag" + random.nextInt(5), "tag" + random.nextInt(5)));
                 article.setAbstractContent("This is an abstract for article " + i);
                 article.setPremium(random.nextBoolean());
-                article.setStatus(statuses[random.nextInt(statuses.length)]);
+                article.setStatus(ArticleStatusEnum.PUBLISHED);
                 if (ArticleStatusEnum.PUBLISHED.equals(article.getStatus())) {
                     numPublishedArticles++;
                 }
                 article.setViews(random.nextInt(1000));
                 article.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(365)));
+                article.setContent("Content for article " + i);
                 articles.add(article);
             }
 

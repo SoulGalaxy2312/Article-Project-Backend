@@ -13,6 +13,7 @@ import backend.article_project_backend.utils.common.dto.ApiResponse;
 import backend.article_project_backend.utils.common.path.AppPaths;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -55,9 +57,14 @@ public class ArticleController {
     
     // Read a specific article
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}")
-    public ResponseEntity<ApiResponse<FullArticleDTO>> getSpecificArticle(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<FullArticleDTO>> getSpecificArticle(@PathVariable String id) {
         log.info("Fetching article with id {}", id);
-        return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getSpecificArticle(id)));
+        try {
+            UUID articleId = UUID.fromString(id);
+            return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getSpecificArticle(articleId)));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid article id: " + id);
+        }
     }
 
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}/relevantArticles")
@@ -82,5 +89,4 @@ public class ArticleController {
         ApiResponse<List<ArticleProfileDTO>> response = new ApiResponse<>(articles);
         return ResponseEntity.ok().body(response);
     }
-    
 }

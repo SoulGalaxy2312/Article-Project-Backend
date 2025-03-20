@@ -12,6 +12,8 @@ import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.image.service.ImageService;
+import backend.article_project_backend.topic.model.Topic;
+import backend.article_project_backend.topic.service.TopicService;
 import backend.article_project_backend.user.model.User;
 import backend.article_project_backend.utils.security.authentication.UserPrincipal;
 
@@ -21,10 +23,12 @@ public class ArticleWriteServiceImpl implements ArticleWriteService{
     
     public final ArticleRepository articleRepository;
     public final ImageService imageService;
+    public final TopicService topicService;
 
-    public ArticleWriteServiceImpl(ArticleRepository articleRepository, ImageService imageService) {
+    public ArticleWriteServiceImpl(ArticleRepository articleRepository, ImageService imageService, TopicService topicService) {
         this.articleRepository = articleRepository;
         this.imageService = imageService;
+        this.topicService = topicService;
     }
 
     @Override
@@ -47,7 +51,10 @@ public class ArticleWriteServiceImpl implements ArticleWriteService{
         }
         
         article.setTitle(createArticleRequestDTO.title());
-        article.setTopic(createArticleRequestDTO.topic());
+        
+        Topic savedTopic = topicService.saveTopic(createArticleRequestDTO.topic());
+        article.setTopic(savedTopic);
+        
         article.setTags(createArticleRequestDTO.tags());
         article.setAbstractContent(createArticleRequestDTO.abstractContent());
         article.setPremium(createArticleRequestDTO.isPremium());

@@ -4,7 +4,9 @@ import backend.article_project_backend.comment.dto.CommentDTO;
 import backend.article_project_backend.comment.dto.CreateCommentRequestDTO;
 import backend.article_project_backend.comment.dto.CreateCommentResponseDTO;
 import backend.article_project_backend.comment.service.CommentService;
+import backend.article_project_backend.utils.common.dto.ApiResponse;
 import backend.article_project_backend.utils.common.path.AppPaths;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
+@Slf4j
 @RequestMapping(AppPaths.ARTICLE_URI)
 public class CommentController {
     
@@ -31,19 +34,23 @@ public class CommentController {
     }
 
     @GetMapping("/{articleId}/comments")
-    public List<CommentDTO> getArticleComments(@PathVariable UUID articleId) {
-        return commentService.getArticleComments(articleId);
+    public ResponseEntity<ApiResponse<List<CommentDTO>>> getArticleComments(@PathVariable UUID articleId) {
+        log.info("Get comments of article with id {}", articleId);
+        List<CommentDTO> comments = commentService.getArticleComments(articleId);
+        ApiResponse<List<CommentDTO>> response = new ApiResponse<List<CommentDTO>>(comments);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/{articleId}/createComment")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<CreateCommentResponseDTO> createComment(
+    public ResponseEntity<ApiResponse<CreateCommentResponseDTO>> createComment(
         @PathVariable UUID articleId,
         @RequestBody CreateCommentRequestDTO createCommentRequestDTO) {
 
-        CreateCommentResponseDTO responseDTO = commentService.createComment(articleId, createCommentRequestDTO);
-        
-        return ResponseEntity.ok().body(responseDTO);
+            log.info("Create comment for article with id {}", articleId);
+            CreateCommentResponseDTO responseDTO = commentService.createComment(articleId, createCommentRequestDTO);
+            ApiResponse<CreateCommentResponseDTO> response = new ApiResponse<CreateCommentResponseDTO>(responseDTO);
+            return ResponseEntity.ok().body(response);
     }
     
 }

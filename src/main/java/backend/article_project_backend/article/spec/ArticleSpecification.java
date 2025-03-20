@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.model.ArticleStatusEnum;
+import backend.article_project_backend.topic.model.Topic;
 
 public class ArticleSpecification {
     
@@ -16,7 +17,7 @@ public class ArticleSpecification {
         };
     }
 
-    public static Specification<Article> hasTopic(String topic) {
+    public static Specification<Article> hasTopic(Topic topic) {
         return (root, query, criteriaBuider) -> 
             criteriaBuider.equal(root.get("topic"), topic);
     }

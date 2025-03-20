@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import backend.article_project_backend.topic.model.Topic;
 import backend.article_project_backend.user.model.User;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -36,7 +37,11 @@ public class Article {
     private User user;
 
     private String title;
-    private String topic;
+
+    @ManyToOne
+    @JoinColumn(name = "topic_id")
+    private Topic topic;
+    
     private String mainImageUrl;
     
     @ElementCollection
@@ -49,4 +54,6 @@ public class Article {
     private boolean isPremium;
     private int views;
     private LocalDateTime createdAt;
+
+    private String content;
 }

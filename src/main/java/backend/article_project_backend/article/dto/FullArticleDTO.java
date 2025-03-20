@@ -16,7 +16,8 @@ public record FullArticleDTO(
     String abstractContent,
     boolean isPremium,
     int views,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    String content
 ) {
     
 }

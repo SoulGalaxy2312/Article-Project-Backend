@@ -24,6 +24,7 @@ import backend.article_project_backend.article.model.Article;
 import backend.article_project_backend.article.model.ArticleStatusEnum;
 import backend.article_project_backend.article.repository.ArticleRepository;
 import backend.article_project_backend.article.spec.ArticleSpecification;
+import backend.article_project_backend.topic.model.Topic;
 import backend.article_project_backend.user.model.User;
 import backend.article_project_backend.user.model.UserRole;
 import backend.article_project_backend.utils.config.cache.RedisService;
@@ -79,6 +80,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Override
     public FullArticleDTO getSpecificArticle(UUID id) {
+        log.info("Service layer gets to work with id {}", id);
         Article article = articleRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Article not found with id: " + id));
         
@@ -86,14 +88,16 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to access this article.");
         }
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String redisKey = RedisKeys.USER_ROLE + username;
+        if (article.isPremium()) {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            String redisKey = RedisKeys.USER_ROLE + username;
 
-        String curUserRole = redisService.getData(redisKey).toString();
-        boolean hasRoleUser = UserRole.ROLE_USER.toString().equals(curUserRole);
-        if (article.isPremium() && !hasRoleUser) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must have the USER role to access the premium article.");
-        }
+            String curUserRole = redisService.getData(redisKey).toString();
+            boolean hasRoleUser = UserRole.ROLE_USER.toString().equals(curUserRole);
+            if (!hasRoleUser) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must have the USER role to access the premium article.");
+            }
+        } 
 
         return ArticleMapper.toFullArticleDTO(article);
     }
@@ -103,7 +107,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         Article article = articleRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Not found article with id: " + id));
         
-        String topic = article.getTopic();
+        Topic topic = article.getTopic();
         Specification<Article> spec = Specification.where(ArticleSpecification.hasTopic(topic))
                                                     .and(ArticleSpecification.excludeArticleById(id))
                                                     .and(ArticleSpecification.latestArticles());
