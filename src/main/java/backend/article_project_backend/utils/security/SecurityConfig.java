@@ -1,5 +1,7 @@
 package backend.article_project_backend.utils.security;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,9 +47,11 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeRequests(
                 c -> c.requestMatchers(AppPaths.API_BASE_PATH + "/login").permitAll()
+                        .requestMatchers(AppPaths.API_BASE_PATH + "/register").permitAll()
                         .requestMatchers(AppPaths.HOMEPAGE_URI + "/**").permitAll()
                         .requestMatchers(AppPaths.ARTICLE_URI + "/**").permitAll()
                         .requestMatchers(AppPaths.TOPIC_URI + "/**").permitAll()
+                        .requestMatchers(AppPaths.SEARCH_URI + "/**").permitAll()
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -79,8 +83,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin(clientDomain);
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowCredentials(true); 
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

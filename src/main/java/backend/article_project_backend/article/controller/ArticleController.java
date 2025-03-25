@@ -13,20 +13,21 @@ import backend.article_project_backend.utils.common.dto.ApiResponse;
 import backend.article_project_backend.utils.common.path.AppPaths;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 @Slf4j
 @RestController
@@ -57,23 +58,19 @@ public class ArticleController {
     
     // Read a specific article
     @GetMapping(AppPaths.ARTICLE_URI + "/{id}")
-    public ResponseEntity<ApiResponse<FullArticleDTO>> getSpecificArticle(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<FullArticleDTO>> getSpecificArticle(@PathVariable UUID id) {
         log.info("Fetching article with id {}", id);
-        try {
-            UUID articleId = UUID.fromString(id);
-            return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getSpecificArticle(articleId)));
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid article id: " + id);
-        }
+        return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getSpecificArticle(id)));
     }
 
-    @GetMapping(AppPaths.ARTICLE_URI + "/{id}/relevantArticles")
-    public ResponseEntity<ApiResponse<List<ArticlePreviewDTO>>> getRelevantArticles(@PathVariable UUID id) {
-        log.info("Fetching related articles to the article with id ", id);
-        return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getRelevantArticle(id)));
-    }
+    // @GetMapping(AppPaths.ARTICLE_URI + "/{id}/relevantArticles")
+    // public ResponseEntity<ApiResponse<List<ArticlePreviewDTO>>> getRelevantArticles(@PathVariable UUID id) {
+    //     log.info("Fetching related articles to the article with id ", id);
+    //     return ResponseEntity.ok().body(new ApiResponse<>(articleReadService.getRelevantArticle(id)));
+    // }
 
-    @PostMapping(AppPaths.ARTICLE_URI + "/createArticle")
+    @PostMapping(value = AppPaths.ARTICLE_URI + "/createArticle", consumes = "multipart/form-data")
+    @CrossOrigin(origins = "${client.domain}", allowCredentials = "true")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ApiResponse<FullArticleDTO>> createArticle(@ModelAttribute @Validated CreateArticleRequestDTO createArticleRequestDTO) {
         log.info("Creating new article");
@@ -88,5 +85,14 @@ public class ArticleController {
         List<ArticleProfileDTO> articles = articleReadService.getArticleInProfiles(articleStatus);
         ApiResponse<List<ArticleProfileDTO>> response = new ApiResponse<>(articles);
         return ResponseEntity.ok().body(response);
+    }
+
+    @PutMapping(AppPaths.ARTICLE_URI + "/{articleId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<String>> changeStatus(@PathVariable UUID articleId, @RequestParam ArticleStatusEnum status) {
+        log.info("Controller layer: change status artice");
+        String response = articleWriteService.changeStatus(articleId, status);
+        
+        return ResponseEntity.ok().body(new ApiResponse<String>(response));
     }
 }

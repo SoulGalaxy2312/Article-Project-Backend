@@ -2,7 +2,7 @@ package backend.article_project_backend.comment.controller;
 
 import backend.article_project_backend.comment.dto.CommentDTO;
 import backend.article_project_backend.comment.dto.CreateCommentRequestDTO;
-import backend.article_project_backend.comment.dto.CreateCommentResponseDTO;
+import backend.article_project_backend.comment.model.Comment;
 import backend.article_project_backend.comment.service.CommentService;
 import backend.article_project_backend.utils.common.dto.ApiResponse;
 import backend.article_project_backend.utils.common.path.AppPaths;
@@ -43,13 +43,13 @@ public class CommentController {
 
     @PostMapping("/{articleId}/createComment")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApiResponse<CreateCommentResponseDTO>> createComment(
+    public ResponseEntity<ApiResponse<CommentDTO>> createComment(
         @PathVariable UUID articleId,
         @RequestBody CreateCommentRequestDTO createCommentRequestDTO) {
 
             log.info("Create comment for article with id {}", articleId);
-            CreateCommentResponseDTO responseDTO = commentService.createComment(articleId, createCommentRequestDTO);
-            ApiResponse<CreateCommentResponseDTO> response = new ApiResponse<CreateCommentResponseDTO>(responseDTO);
+            CommentDTO responseDTO = commentService.createComment(articleId, createCommentRequestDTO);
+            ApiResponse<CommentDTO> response = new ApiResponse<CommentDTO>(responseDTO);
             return ResponseEntity.ok().body(response);
     }
     

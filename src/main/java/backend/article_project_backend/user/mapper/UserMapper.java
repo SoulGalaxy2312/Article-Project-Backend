@@ -13,6 +13,7 @@ public class UserMapper {
     public static UserProfileDTO toUserProfileDTO(User user) {
         return new UserProfileDTO(
             user.getUsername(), 
-            user.getBirthDate());
+            user.getBirthDate(),
+            user.getRole().toString());
     }
 }

@@ -43,7 +43,7 @@ public class CommentService {
                         .collect(Collectors.toList());
     }
 
-    public CreateCommentResponseDTO createComment(UUID articleId, CreateCommentRequestDTO createCommentRequestDTO) {
+    public CommentDTO createComment(UUID articleId, CreateCommentRequestDTO createCommentRequestDTO) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -75,7 +75,8 @@ public class CommentService {
             parentComment
         ));
 
-        return new CreateCommentResponseDTO(true, "Save comment", savedComment.getId(), savedComment.getCreatedAt());
+        List<Comment> comments = commentRepository.findByArticleId(articleId);
+        return CommentMapper.toCommentDTO(savedComment, comments);
     }
 }
 

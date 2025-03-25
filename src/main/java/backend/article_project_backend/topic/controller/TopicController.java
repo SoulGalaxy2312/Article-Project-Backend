@@ -12,10 +12,12 @@ import backend.article_project_backend.topic.model.Topic;
 import backend.article_project_backend.topic.service.TopicService;
 import backend.article_project_backend.utils.common.dto.ApiResponse;
 import backend.article_project_backend.utils.common.path.AppPaths;
+import lombok.extern.slf4j.Slf4j;
 
 
 @RestController
 @RequestMapping(AppPaths.TOPIC_URI)
+@Slf4j
 public class TopicController {
 
     private final TopicService topicService;
@@ -26,6 +28,7 @@ public class TopicController {
     
     @GetMapping("/explore-topics")
     public ResponseEntity<ApiResponse<List<Topic>>> getAllTopics() {
+        log.info("Fetching topics");
         List<Topic> topics = topicService.getAllTopics();
         ApiResponse<List<Topic>> response = new ApiResponse<List<Topic>>(topics);
         return ResponseEntity.ok().body(response);

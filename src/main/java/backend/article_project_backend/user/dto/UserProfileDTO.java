@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public record UserProfileDTO(
     String username,
-    LocalDate birthDate
+    LocalDate birthDate,
+    String role
 ) {
 }

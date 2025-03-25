@@ -9,7 +9,7 @@ spring:
             mode: always
     jpa:
         hibernate:
-            ddl-auto: create-drop
+            ddl-auto: update
     data:
         redis:
             host: redis

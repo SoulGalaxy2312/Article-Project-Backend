@@ -3,13 +3,15 @@ package backend.article_project_backend.article.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import backend.article_project_backend.topic.model.Topic;
+
 public record FullArticleDTO(
     String id,
 
     String authorName,
 
     String title,
-    String topic,
+    Topic topic,
     String mainImageUrl,
 
     List<String> tags,

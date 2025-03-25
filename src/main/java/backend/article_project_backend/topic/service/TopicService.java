@@ -42,15 +42,17 @@ public class TopicService {
     }
 
     public List<Topic> getAllTopics() {
-        log.info("Getting all topics");
+        log.info("Service layer: getting all topics");
         Object topicsObj = redisService.getData(RedisKeys.ALL_TOPICS);
+
         if (topicsObj != null && topicsObj instanceof List) {
-            log.info("Topics are stored in cache");
+            log.info("Topics are stored in cache"); 
             return (List<Topic>) topicsObj;
         }
 
         log.info("Topics are not in cache. Getting topics from  repository");
         List<Topic> topics = topicRepository.findAll();
+        redisService.deleteData(RedisKeys.ALL_TOPICS);
         redisService.saveData(RedisKeys.ALL_TOPICS, topics);
         return topics;
     }

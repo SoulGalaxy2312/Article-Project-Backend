@@ -25,7 +25,10 @@ public record CreateArticleRequestDTO(
     @NotBlank(message = "Abstract content is required")
     String abstractContent,
     
-    boolean isPremium
+    boolean isPremium,
+
+    @NotBlank(message = "Content is required")
+    String content
 ) {
     
 }

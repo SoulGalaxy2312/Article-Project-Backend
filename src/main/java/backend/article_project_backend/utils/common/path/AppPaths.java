@@ -7,4 +7,5 @@ public class AppPaths {
     public static final String IMAGE_URI  = API_BASE_PATH + "/image";
     public static final String USER_URI  = API_BASE_PATH + "/user";
     public static final String TOPIC_URI = API_BASE_PATH + "/topic";
+    public static final String SEARCH_URI = API_BASE_PATH + "/search";
 }

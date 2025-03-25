@@ -25,15 +25,15 @@ public class ImageController {
         this.imageService = imageService;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
-        try {
-            String imageUrl = imageService.uploadImage(file);
-            Map<String, String> response = new HashMap<>();
-            response.put("imageUrl", imageUrl);
-            return ResponseEntity.ok(response);
-        } catch (IOException e) {
-            return ResponseEntity.badRequest().body("Upload failed: " + e.getMessage());
-        }
-    }
+    // @PostMapping("/upload")
+    // public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+    //     try {
+    //         String imageUrl = imageService.uploadImage(file);
+    //         Map<String, String> response = new HashMap<>();
+    //         response.put("imageUrl", imageUrl);
+    //         return ResponseEntity.ok(response);
+    //     } catch (IOException e) {
+    //         return ResponseEntity.badRequest().body("Upload failed: " + e.getMessage());
+    //     }
+    // }
 }

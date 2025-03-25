@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import backend.article_project_backend.topic.model.Topic;
 import backend.article_project_backend.user.model.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,5 +57,7 @@ public class Article {
     private int views;
     private LocalDateTime createdAt;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 }

@@ -29,7 +29,7 @@ public class ArticleMapper {
             article.getId().toString(), 
             article.getUser().getUsername(), 
             article.getTitle(), 
-            article.getTopic().getName(), 
+            article.getTopic(), 
             article.getMainImageUrl(), 
             article.getTags(), 
             article.getAbstractContent(), 
